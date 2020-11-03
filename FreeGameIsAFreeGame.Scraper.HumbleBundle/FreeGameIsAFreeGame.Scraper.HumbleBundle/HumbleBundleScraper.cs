@@ -36,16 +36,19 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
         async Task<IEnumerable<IDeal>> IScraper.Scrape(CancellationToken token)
         {
             List<IDeal> deals = new List<IDeal>();
+            logger.Info("Getting page count");
             int pageCount = await GetPageCount(token);
             if (token.IsCancellationRequested)
                 return null;
 
+            logger.Info($"Found {pageCount} pages");
             for (int i = 0; i < pageCount; i++)
             {
                 await Task.Delay(1500, token);
                 if (token.IsCancellationRequested)
                     return null;
 
+                logger.Info($"Scraping page {i + 1}");
                 string content = await GetPageContent(i, token);
                 if (token.IsCancellationRequested)
                     return null;
