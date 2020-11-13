@@ -8,7 +8,7 @@
         <PackageProjectUrl>https://github.com/FreeGameIsAFreeGame/Scraper-HumbleBundle</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/FreeGameIsAFreeGame/Scraper-HumbleBundle/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/FreeGameIsAFreeGame/Scraper-HumbleBundle</RepositoryUrl>
-        <PackageVersion>1.0.2</PackageVersion>
+        <PackageVersion>1.0.3</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
