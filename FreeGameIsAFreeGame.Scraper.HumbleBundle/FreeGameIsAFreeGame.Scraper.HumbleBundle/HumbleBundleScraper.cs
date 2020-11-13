@@ -61,6 +61,12 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
                     if (discount != 100)
                         continue;
 
+                    if (result.HumanName.ToLower().Contains("demo") || result.HumanUrl.ToLower().Contains("demo"))
+                    {
+                        logger.Info($"Skipping {result.HumanName} because it's a demo");
+                        continue;
+                    }
+
                     Deal deal = new Deal
                     {
                         Discount = discount,
