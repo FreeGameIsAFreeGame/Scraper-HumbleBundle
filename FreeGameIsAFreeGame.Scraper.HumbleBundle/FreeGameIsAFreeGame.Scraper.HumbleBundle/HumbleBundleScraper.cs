@@ -133,5 +133,13 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
 
             return 100 - (int) Math.Round(current.Amount / full.Amount * 100);
         }
+
+#region IDisposable
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            context?.Dispose();
+        }
+#endregion
     }
 }
