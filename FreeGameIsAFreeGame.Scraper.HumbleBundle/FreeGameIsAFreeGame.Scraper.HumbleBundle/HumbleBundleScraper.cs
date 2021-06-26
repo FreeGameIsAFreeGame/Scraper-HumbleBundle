@@ -16,21 +16,23 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
         private const string URL =
             "https://www.humblebundle.com/store/api/search?sort=discount&filter=onsale&hmb_source=store_navbar&request=__REQUEST__&page=__PAGE__";
 
-        private readonly IBrowsingContext context;
-        private readonly ILogger logger;
+        private IBrowsingContext context;
+        private ILogger logger;
 
         private int requestCount;
 
         string IScraper.Identifier => "HumbleBundleFree";
-        string IScraper.DisplayName => "Humble Bundle";
 
-        public HumbleBundleScraper()
+        /// <inheritdoc />
+        public Task Initialize(CancellationToken token)
         {
             context = BrowsingContext.New(Configuration.Default
                 .WithDefaultLoader()
                 .WithDefaultCookies());
 
             logger = LogManager.GetLogger(GetType().FullName);
+
+            return Task.CompletedTask;
         }
 
         async Task<IEnumerable<IDeal>> IScraper.Scrape(CancellationToken token)
@@ -134,12 +136,11 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
             return 100 - (int) Math.Round(current.Amount / full.Amount * 100);
         }
 
-#region IDisposable
         /// <inheritdoc />
-        public void Dispose()
+        public Task Dispose()
         {
             context?.Dispose();
+            return Task.CompletedTask;
         }
-#endregion
     }
 }
