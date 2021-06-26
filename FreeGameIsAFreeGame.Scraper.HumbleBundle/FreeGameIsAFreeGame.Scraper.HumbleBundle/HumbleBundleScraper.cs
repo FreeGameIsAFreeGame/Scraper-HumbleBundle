@@ -16,36 +16,41 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
         private const string URL =
             "https://www.humblebundle.com/store/api/search?sort=discount&filter=onsale&hmb_source=store_navbar&request=__REQUEST__&page=__PAGE__";
 
-        private readonly IBrowsingContext context;
-        private readonly ILogger logger;
+        private IBrowsingContext context;
+        private ILogger logger;
 
         private int requestCount;
 
         string IScraper.Identifier => "HumbleBundleFree";
-        string IScraper.DisplayName => "Humble Bundle";
 
-        public HumbleBundleScraper()
+        /// <inheritdoc />
+        public Task Initialize(CancellationToken token)
         {
             context = BrowsingContext.New(Configuration.Default
                 .WithDefaultLoader()
                 .WithDefaultCookies());
 
             logger = LogManager.GetLogger(GetType().FullName);
+
+            return Task.CompletedTask;
         }
 
         async Task<IEnumerable<IDeal>> IScraper.Scrape(CancellationToken token)
         {
             List<IDeal> deals = new List<IDeal>();
+            logger.Info("Getting page count");
             int pageCount = await GetPageCount(token);
             if (token.IsCancellationRequested)
                 return null;
 
+            logger.Info($"Found {pageCount} pages");
             for (int i = 0; i < pageCount; i++)
             {
                 await Task.Delay(1500, token);
                 if (token.IsCancellationRequested)
                     return null;
 
+                logger.Info($"Scraping page {i + 1}");
                 string content = await GetPageContent(i, token);
                 if (token.IsCancellationRequested)
                     return null;
@@ -57,6 +62,12 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
                     int discount = GetDiscount(result);
                     if (discount != 100)
                         continue;
+
+                    if (result.HumanName.ToLower().Contains("demo") || result.HumanUrl.ToLower().Contains("demo"))
+                    {
+                        logger.Info($"Skipping {result.HumanName} because it's a demo");
+                        continue;
+                    }
 
                     Deal deal = new Deal
                     {
@@ -123,6 +134,13 @@ namespace FreeGameIsAFreeGame.Scraper.HumbleBundle
             Price full = result.FullPrice;
 
             return 100 - (int) Math.Round(current.Amount / full.Amount * 100);
+        }
+
+        /// <inheritdoc />
+        public Task Dispose()
+        {
+            context?.Dispose();
+            return Task.CompletedTask;
         }
     }
 }
